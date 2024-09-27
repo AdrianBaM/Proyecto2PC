@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styless.css">
+    <title>CRUD de Usuarios</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">CRUD de Usuarios</h1>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Agregar Usuario</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <input type="text" id="nombre" class="form-control" placeholder="Nombre" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="text" id="telefono" class="form-control" placeholder="Teléfono" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="text" id="dpi" class="form-control" placeholder="DPI" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="email" id="correo" class="form-control" placeholder="Correo" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="date" id="fechaNacimiento" class="form-control" placeholder="Fecha Nacimiento" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="text" id="tipoSangre" class="form-control" placeholder="Tipo Sangre" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="date" id="inicioContrato" class="form-control" placeholder="Inicio Contrato" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="date" id="finContrato" class="form-control" placeholder="Fin Contrato" required>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="createUser()">Agregar</button>
+            </div>
+        </div>
+
+        <h2 class="mt-5">Lista de Usuarios</h2>
+        <table class="table table-striped mt-3" id="userTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>DPI</th>
+                    <th>Correo</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Tipo Sangre</th>
+                    <th>Inicio Contrato</th>
+                    <th>Fin Contrato</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="userBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        async function fetchUsers() {
+            const response = await fetch('/api/users');
+            const users = await response.json();
+            const userBody = document.getElementById('userBody');
+            userBody.innerHTML = '';
+
+            users.forEach(user => {
+                userBody.innerHTML += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.nombre}</td>
+                        <td>${user.telefono}</td>
+                        <td>${user.dpi}</td>
+                        <td>${user.correo}</td>
+                        <td>${user.fechaNacimiento}</td>
+                        <td>${user.tipoSangre}</td>
+                        <td>${user.inicioContrato}</td>
+                        <td>${user.finContrato}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteUser(${user.id})">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function createUser() {
+            const user = {
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                dpi: document.getElementById('dpi').value,
+                correo: document.getElementById('correo').value,
+                fechaNacimiento: document.getElementById('fechaNacimiento').value,
+                tipoSangre: document.getElementById('tipoSangre').value,
+                inicioContrato: document.getElementById('inicioContrato').value,
+                finContrato: document.getElementById('finContrato').value,
+            };
+
+            await fetch('/api/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user),
+            });
+            fetchUsers(); 
+        }
+
+        async function deleteUser(id) {
+            await fetch(`/api/users/${id}`, { method: 'DELETE' });
+            fetchUsers(); 
+        }
+        fetchUsers();
+    </script>
+</body>
+</html>

@@ -7,26 +7,27 @@ class UserController {
         db.query('SELECT * FROM proyectos', (error, results) => {
             if (error) {
                 console.error('Error al consultar la base de datos:', error);
-                res.status(500).send('Error en el servidor');
+                res.status(500).json({ error: 'Error en el servidor' }); // Cambiado a JSON
                 return;
             }
 
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const day = String(date.getDate()).padStart(2, '0'); 
+                const month = String(date.getMonth() + 1).padStart(2, '0'); 
+                const year = date.getFullYear();
+            
+                return `${day}/${month}/${year}`; 
+            }
+            
+            const date = '2022-01-01T06:00:00.000Z';
+            const formattedDate = formatDate(date);
+
             const users = results.map(user => {
-                const userObj = UserFactory.createUser(
-                    user.id, 
-                    user.nombre, 
-                    user.telefono, 
-                    user.dpi, 
-                    user.correo, 
-                    user.fechaNacimiento, 
-                    user.tipoSangre, 
-                    user.inicioContrato, 
-                    user.finContrato
-                );
-                return UserView.displayUser(userObj);
+                return UserFactory.createUser(user.id, user.nombre, user.telefono, user.dpi, user.correo, formatDate(user.fechaNacimiento), user.tipoSangre, formatDate(user.inicioContrato), formatDate(user.finContrato));
             });
 
-            res.send(users.join(''));
+            res.json(users);
         });
     }
 
